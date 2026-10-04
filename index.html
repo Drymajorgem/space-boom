@@ -3,194 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galactic Hunter | Arcade Edition</title>
+    <title>Space Shooter: Evolution Core</title>
     <style>
-        :root {
-            --primary: #ff007f;
-            --secondary: #00f0ff;
-            --bg-dark: #0a0a12;
-            --panel-bg: #141424;
-            --text-light: #ffffff;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        header {
-            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: absolute;
-            width: 100%;
-            z-index: 10;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--secondary);
-            text-shadow: 0 0 10px var(--secondary);
-        }
-
-        main {
+            font-family: monospace;
+            background-color: #040408;
+            color: #00f0ff;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 100px 20px 40px 20px;
-            background: radial-gradient(circle at center, #1b1233 0%, var(--bg-dark) 100%);
         }
-
         .game-wrapper {
-            background: var(--panel-bg);
-            border: 3px solid var(--primary);
-            box-shadow: 0 0 30px rgba(255, 0, 127, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            max-width: 840px;
-            width: 100%;
+            background: #090914;
+            border: 2px solid #ff007f;
+            border-radius: 8px;
+            padding: 10px;
+            width: 820px;
+            max-width: 100%;
         }
-
-        .game-header {
+        .hud {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 0 10px;
-        }
-
-        .score-box {
-            font-size: 20px;
+            background: #000;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
             font-weight: bold;
-            color: var(--secondary);
+            border: 1px solid #333;
         }
-
+        .slot-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .slot {
+            background: #111;
+            border: 1px solid #333;
+            padding: 5px;
+            text-align: center;
+            font-size: 11px;
+            color: #777;
+        }
+        .slot.active {
+            background: #0055ff;
+            color: #fff;
+            border-color: #00f0ff;
+        }
         canvas {
-            background: #020205;
+            background: #000000;
             display: block;
             margin: 0 auto;
-            border-radius: 6px;
-            max-width: 100%;
-            height: auto;
             cursor: crosshair;
-        }
-
-        .instructions {
-            margin-top: 30px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            text-align: left;
-            background: rgba(255,255,255,0.03);
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid var(--secondary);
-        }
-
-        .inst-card h3 {
-            color: var(--secondary);
-            margin-bottom: 5px;
-            font-size: 16px;
-            text-transform: uppercase;
-        }
-
-        .inst-card p {
-            font-size: 14px;
-            color: #ccc;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 12px;
-            color: #555;
-            background: #05050a;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">ARCADE.IO</div>
-    </header>
-
-    <main>
-        <div class="game-wrapper">
-            <div class="game-header">
-                <h2 style="color: var(--primary);">GALACTIC HUNTER</h2>
-                <div class="score-box">SCORE: <span id="scoreVal">0</span></div>
-            </div>
-
-            <canvas id="gameCanvas" width="800" height="500"></canvas>
-
-            <div class="instructions">
-                <div class="inst-card">
-                    <h3>Controls</h3>
-                    <p>Use <strong>W, A, S, D</strong> keys to fly. Aim with your <strong>Mouse</strong>. Click/Hold to shoot.</p>
-                </div>
-                <div class="inst-card">
-                    <h3>Homing Enemies</h3>
-                    <p>Asteroids track your position and fly straight toward you. Do not let them touch you!</p>
-                </div>
-                <div class="inst-card">
-                    <h3>Tip</h3>
-                    <p>Since you can move anywhere, use the screen space to dodge around incoming target vectors.</p>
-                </div>
-            </div>
+    <div class="game-wrapper">
+        <div class="hud">
+            <div>SCORE: <span id="uiScore" style="color:#ffaa00;">0</span></div>
+            <div>HULL: <span id="uiHp" style="color:#fff;">150/150</span></div>
+            <div>GUN: <span id="uiGun" style="color:#39ff14;">BLASTER (LVL 1)</span></div>
         </div>
-    </main>
 
-    <footer>
-        &copy; 2026 Retro Arcade Club.
-    </footer>
+        <div class="slot-bar">
+            <div class="slot active" id="s1">1: BLASTER <span id="lvl1">[LVL 1]</span></div>
+            <div class="slot" id="s2">2: DUAL-LASER <span id="lvl2">[LVL 1]</span></div>
+            <div class="slot" id="s3">3: FLAK SPREAD <span id="lvl3">[LVL 1]</span></div>
+            <div class="slot" id="s4">4: PLASMA RAIL <span id="lvl4">[LVL 1]</span></div>
+        </div>
+
+        <canvas id="gameCanvas" width="800" height="450"></canvas>
+    </div>
 
 <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const scoreVal = document.getElementById('scoreVal');
+    const uiScore = document.getElementById('uiScore');
+    const uiHp = document.getElementById('uiHp');
+    const uiGun = document.getElementById('uiGun');
+    
+    const slots = [document.getElementById('s1'), document.getElementById('s2'), document.getElementById('s3'), document.getElementById('s4')];
+    const lvlTexts = [document.getElementById('lvl1'), document.getElementById('lvl2'), document.getElementById('lvl3'), document.getElementById('lvl4')];
 
     let score = 0;
     let gameOver = false;
+    let enemySpawnCounter = 0;
 
-    const mouse = { x: 0, y: 0, isDown: false };
+    const mouse = { x: 0, y: 0 };
     const keys = { w: false, a: false, s: false, d: false };
 
-    const player = {
-        x: 400,
-        y: 250,
-        radius: 18,
-        speed: 4,
-        angle: 0
+    let player = { 
+        x: 400, y: 225, size: 12, speed: 5.2, angle: 0, hp: 150, maxHp: 150, 
+        gun: 1, gunName: "BLASTER",
+        gunLevels: new Int32Array([1, 1, 1, 1]) 
     };
 
-    let bullets = [];
-    let enemies = [];
-    let lastShot = 0;
-    const fireRate = 120; 
+    const MAX_BULLETS = 64;
+    const bullets = new Float32Array(MAX_BULLETS * 6); 
+    
+    const MAX_ENEMIES = 32;
+    const enemies = new Float32Array(MAX_ENEMIES * 4); 
+
+    // Pre-allocated items drop container matrix [active, x, y, type, life]
+    const MAX_ITEMS = 8;
+    const items = new Float32Array(MAX_ITEMS * 5);
 
     window.addEventListener('keydown', (e) => {
-        if(e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = true;
+        if (e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = true;
+        
+        if (['1', '2', '3', '4'].includes(e.key)) {
+            let choice = parseInt(e.key);
+            slots[player.gun - 1].classList.remove('active');
+            player.gun = choice;
+            slots[player.gun - 1].classList.add('active');
+            updateHudText();
+        }
     });
 
     window.addEventListener('keyup', (e) => {
-        if(e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = false;
+        if (e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = false;
     });
 
     canvas.addEventListener('mousemove', (e) => {
@@ -199,150 +135,144 @@
         mouse.y = (e.clientY - rect.top) * (canvas.height / rect.height);
     });
 
-    canvas.addEventListener('mousedown', () => mouse.isDown = true);
-    canvas.addEventListener('mouseup', () => mouse.isDown = false);
+    canvas.addEventListener('mousedown', () => {
+        if (gameOver) { resetGame(); return; }
+        allocateBullet();
+    });
 
-    function spawnEnemy() {
-        if (gameOver) return;
-
-        let x, y;
-        if (Math.random() < 0.5) {
-            x = Math.random() < 0.5 ? -20 : canvas.width + 20;
-            y = Math.random() * canvas.height;
-        } else {
-            x = Math.random() * canvas.width;
-            y = Math.random() < 0.5 ? -20 : canvas.height + 20;
-        }
-
-        const angleToPlayer = Math.atan2(player.y - y, player.x - x);
-
-        enemies.push({
-            x: x,
-            y: y,
-            radius: Math.random() * 12 + 10,
-            speed: Math.random() * 1.5 + 1 + (score * 0.01),
-            vx: Math.cos(angleToPlayer),
-            vy: Math.sin(angleToPlayer)
-        });
-        
-        setTimeout(spawnEnemy, Math.max(300, 1000 - score * 4));
+    function updateHudText() {
+        const gNames = ["BLASTER", "DUAL-LASER", "FLAK SPREAD", "PLASMA RAIL"];
+        player.gunName = gNames[player.gun - 1];
+        uiGun.innerText = `${player.gunName} (LVL ${player.gunLevels[player.gun - 1]})`;
+        uiHp.innerText = `${player.hp}/${player.maxHp}`;
     }
 
-    function update(timestamp) {
+    function allocateBullet() {
+        let count = 0;
+        const cos = Math.cos(player.angle);
+        const sin = Math.sin(player.angle);
+        const currentLvl = player.gunLevels[player.gun - 1];
+
+        let baseModes = player.gun === 1 ? 1 : player.gun === 2 ? 2 : player.gun === 3 ? 3 : 1;
+        let totalProjectiles = baseModes + (currentLvl - 1);
+
+        for (let i = 0; i < MAX_BULLETS; i++) {
+            let idx = i * 6;
+            if (bullets[idx] === 0) {
+                bullets[idx] = 1; 
+                bullets[idx + 1] = player.x;
+                bullets[idx + 2] = player.y;
+                
+                let speedFactor = player.gun === 4 ? 18 : 13;
+                let offset = (count - (totalProjectiles - 1) / 2) * 0.14;
+                
+                bullets[idx + 3] = Math.cos(player.angle + offset) * speedFactor;
+                bullets[idx + 4] = Math.sin(player.angle + offset) * speedFactor;
+                bullets[idx + 5] = player.gun; 
+
+                count++;
+                if (count >= totalProjectiles) break;
+            }
+        }
+    }
+
+    function poolEnemySpawner() {
+        for (let i = 0; i < MAX_ENEMIES; i++) {
+            let idx = i * 4;
+            if (enemies[idx] === 0) {
+                enemies[idx] = 1; 
+                enemies[idx + 1] = Math.random() < 0.5 ? -15 : canvas.width + 15;
+                enemies[idx + 2] = Math.random() * canvas.height;
+                // Harder speed: 1.45 standard base multiplier
+                enemies[idx + 3] = 1.45 + (score * 0.0006); 
+                break;
+            }
+        }
+    }
+
+    function dropLootItem(x, y) {
+        let rand = Math.random();
+        let itemType = 0; 
+        
+        if (rand < 0.35) {
+            itemType = 1; // 35% chance to drop Upgrade Core [UPG]
+        } else if (rand >= 0.35 && rand < 0.50) {
+            itemType = 2; // 15% chance to drop Health Pack [HP]
+        } else {
+            return; // No drop configuration
+        }
+
+        for (let i = 0; i < MAX_ITEMS; i++) {
+            let idx = i * 5;
+            if (items[idx] === 0) {
+                items[idx] = 1; // active flag
+                items[idx + 1] = x;
+                items[idx + 2] = y;
+                items[idx + 3] = itemType;
+                items[idx + 4] = 450; // frames lifespan
+                break;
+            }
+        }
+    }
+
+    function gameTick() {
         if (gameOver) return;
 
-        if (keys.w && player.y > player.radius) player.y -= player.speed;
-        if (keys.s && player.y < canvas.height - player.radius) player.y += player.speed;
-        if (keys.a && player.x > player.radius) player.x -= player.speed;
-        if (keys.d && player.x < canvas.width - player.radius) player.x += player.speed;
+        if (keys.w && player.y > player.size) player.y -= player.speed;
+        if (keys.s && player.y < canvas.height - player.size) player.y += player.speed;
+        if (keys.a && player.x > player.size) player.x -= player.speed;
+        if (keys.d && player.x < canvas.width - player.size) player.x += player.speed;
 
         player.angle = Math.atan2(mouse.y - player.y, mouse.x - player.x);
 
-        if (mouse.isDown && timestamp - lastShot > fireRate) {
-            bullets.push({
-                x: player.x + Math.cos(player.angle) * player.radius,
-                y: player.y + Math.sin(player.angle) * player.radius,
-                vx: Math.cos(player.angle) * 8,
-                vy: Math.sin(player.angle) * 8
-            });
-            lastShot = timestamp;
+        enemySpawnCounter++;
+        if (enemySpawnCounter >= Math.max(16, 32 - (score * 0.02))) {
+            poolEnemySpawner();
+            enemySpawnCounter = 0;
         }
 
-        for (let i = bullets.length - 1; i >= 0; i--) {
-            let b = bullets[i];
-            b.x += b.vx;
-            b.y += b.vy;
+        // Process Drops
+        for (let i = 0; i < MAX_ITEMS; i++) {
+            let idx = i * 5;
+            if (items[idx] === 1) {
+                items[idx + 4]--;
+                if (items[idx + 4] <= 0) items[idx] = 0;
 
-            if (b.x < 0 || b.x > canvas.width || b.y < 0 || b.y > canvas.height) {
-                bullets.splice(i, 1);
-            }
-        }
-
-        for (let i = enemies.length - 1; i >= 0; i--) {
-            let e = enemies[i];
-
-            const chaseAngle = Math.atan2(player.y - e.y, player.x - e.x);
-            e.vx = Math.cos(chaseAngle);
-            e.vy = Math.sin(chaseAngle);
-
-            e.x += e.vx * e.speed;
-            e.y += e.vy * e.speed;
-
-            let distToPlayer = Math.hypot(player.x - e.x, player.y - e.y);
-            if (distToPlayer < player.radius + e.radius) {
-                gameOver = true;
-            }
-
-            for (let j = bullets.length - 1; j >= 0; j--) {
-                let b = bullets[j];
-                let distToBullet = Math.hypot(b.x - e.x, b.y - e.y);
-                if (distToBullet < e.radius) {
-                    enemies.splice(i, 1);
-                    bullets.splice(j, 1);
-                    score += 10;
-                    scoreVal.innerText = score;
-                    break;
+                let dx = player.x - items[idx + 1];
+                let dy = player.y - items[idx + 2];
+                if ((dx < 0 ? -dx : dx) < 16 && (dy < 0 ? -dy : dy) < 16) {
+                    if (items[idx + 3] === 1) {
+                        // AUTOMATIC UPGRADE PACK COLLECTED Matrix Hook
+                        player.gunLevels[player.gun - 1]++;
+                        lvlTexts[player.gun - 1].innerText = `[LVL ${player.gunLevels[player.gun - 1]}]`;
+                    } else if (items[idx + 3] === 2) {
+                        player.hp = Math.min(player.maxHp, player.hp + 20);
+                    }
+                    items[idx] = 0;
+                    updateHudText();
                 }
             }
         }
 
-        draw();
-        requestAnimationFrame(update);
-    }
-
-    function draw() {
-        ctx.fillStyle = 'rgba(10, 10, 18, 0.3)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        if (gameOver) {
-            ctx.fillStyle = '#ff007f';
-            ctx.font = 'bold 40px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText("MISSION FAILED", canvas.width / 2, canvas.height / 2);
-            ctx.font = '20px sans-serif';
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText("Refresh the page to restart", canvas.width / 2, canvas.height / 2 + 50);
-            return;
+        for (let i = 0; i < MAX_BULLETS; i++) {
+            let idx = i * 6;
+            if (bullets[idx] === 1) {
+                bullets[idx + 1] += bullets[idx + 3];
+                bullets[idx + 2] += bullets[idx + 4];
+                if (bullets[idx + 1] < 0 || bullets[idx + 1] > canvas.width || bullets[idx + 2] < 0 || bullets[idx + 2] > canvas.height) {
+                    bullets[idx] = 0; 
+                }
+            }
         }
 
-        ctx.save();
-        ctx.translate(player.x, player.y);
-        ctx.rotate(player.angle);
-        
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = '#00f0ff';
-        ctx.fillStyle = '#00f0ff';
-        
-        ctx.beginPath();
-        ctx.moveTo(player.radius, 0); 
-        ctx.lineTo(-player.radius, -player.radius + 5);
-        ctx.lineTo(-player.radius + 6, 0); 
-        ctx.lineTo(-player.radius, player.radius - 5);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
+        for (let i = 0; i < MAX_ENEMIES; i++) {
+            let eIdx = i * 4;
+            if (enemies[eIdx] === 1) {
+                let dx = player.x - enemies[eIdx + 1];
+                let dy = player.y - enemies[eIdx + 2];
+                let absX = dx < 0 ? -dx : dx;
+                let absY = dy < 0 ? -dy : dy;
+                let total = absX + absY;
 
-        ctx.shadowColor = '#ff007f';
-        ctx.fillStyle = '#ff007f';
-        bullets.forEach(b => {
-            ctx.beginPath();
-            ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        ctx.shadowColor = '#ffaa00';
-        ctx.fillStyle = '#ffaa00';
-        enemies.forEach(e => {
-            ctx.beginPath();
-            ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
-            ctx.fill();
-        });
-        
-        ctx.shadowBlur = 0;
-    }
-
-    setTimeout(spawnEnemy, 1000);
-    requestAnimationFrame(update);
-</script>
-</body>
-</html>
+                if (total > 0) {
+                    enemies[eIdx + 1] += (dx / total) * enemies[eIdx + 3];
